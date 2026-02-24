@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSS Overrides Proposal Prototype</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"%3E%3Cdefs%3E%3ClinearGradient id="g" x1="0" y1="0" x2="1" y2="1"%3E%3Cstop offset="0%25" stop-color="%235b8dff"/%3E%3Cstop offset="100%25" stop-color="%2343d19e"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x="4" y="4" width="56" height="56" rx="12" fill="%230f1730" stroke="url(%23g)" stroke-width="4"/%3E%3Ctext x="32" y="40" text-anchor="middle" fill="%23eef2ff" font-size="26" font-family="Arial,sans-serif"%3EC%3C/text%3E%3C/svg%3E'
+    />
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #111935;
+        --panel-2: #0f1730;
+        --text: #eef2ff;
+        --muted: #b8c1e1;
+        --brand: #3b82f6;
+        --brand-2: #ffd54a;
+        --ok: #43d19e;
+        --warn: #ffcc66;
+        --danger: #ff8f8f;
+        --border: #2b3a6a;
+        --slide-height: 90vh;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        overflow: hidden;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        background: radial-gradient(circle at 20% 0%, #173a8f 0%, var(--bg) 46%);
+        color: var(--text);
+        overflow: hidden;
+      }
+
+      .deck {
+        width: min(1120px, 94vw);
+        margin: 24px auto;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        background: linear-gradient(165deg, var(--panel) 0%, var(--panel-2) 100%);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        position: relative;
+      }
+
+      .slides {
+        position: relative;
+        height: var(--slide-height);
+      }
+
+      .slide {
+        display: none;
+        padding: 44px;
+        height: var(--slide-height);
+        overflow-y: auto;
+      }
+
+      .slide.active {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      h1,
+      h2 {
+        margin: 0 0 14px 0;
+        line-height: 1.2;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      h2 {
+        font-size: 32px;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+        font-size: 19px;
+        line-height: 1.5;
+      }
+
+      ul {
+        margin: 12px 0 0 20px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 14px;
+        color: #d8e4ff;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        overflow-x: auto;
+      }
+
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .step {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        font-size: 15px;
+      }
+
+      .arrow {
+        align-self: center;
+        color: var(--brand);
+      }
+
+      .tag {
+        display: inline-block;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .ok {
+        color: var(--ok);
+      }
+
+      .warn {
+        color: var(--warn);
+      }
+
+      .danger {
+        color: var(--danger);
+      }
+
+      .footer {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 14px;
+        border-top: 1px solid var(--border);
+        padding: 12px 16px;
+      }
+
+      .progress-wrap {
+        width: 100%;
+        height: 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), rgba(255, 213, 74, 0.16), rgba(67, 209, 158, 0.12));
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 14.285%;
+        background: linear-gradient(90deg, #2f6df6 0%, #4f8cff 40%, #ffd54a 74%, #43d19e 100%);
+        transition: width 180ms ease;
+      }
+
+      .progress {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .click-zone {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 12%;
+        min-width: 64px;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+      }
+
+      .click-zone:hover {
+        background: rgba(255, 213, 74, 0.08);
+      }
+
+      
+
+      .click-zone.left {
+        left: 0;
+      }
+
+      .click-zone.right {
+        right: 0;
+      }
+
+      .visual {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 14px;
+      }
+
+      .visual svg {
+        width: 100%;
+        height: 130px;
+        display: block;
+      }
+
+      .visual-caption {
+        margin: 8px 0 0;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .kv {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .stack {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .kpi {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.02);
+        text-align: center;
+      }
+
+      .kpi .n {
+        font-size: 20px;
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .kpi .l {
+        margin-top: 2px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      @media (max-width: 860px) {
+        :root {
+          --slide-height: 560px;
+        }
+
+        .slide {
+          padding: 24px;
+        }
+
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+
+        .kv {
+          grid-template-columns: 1fr;
+        }
+
+        h1 {
+          font-size: 32px;
+        }
+
+        h2 {
+          font-size: 26px;
+        }
+
+        p,
+        li {
+          font-size: 16px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .progress-fill {
+          transition: none;
+        }
+      }
+
+      @media print {
+        :root {
+          --slide-height: auto;
+        }
+
+        html,
+        body {
+          overflow: visible;
+          background: #ffffff;
+          color: #111111;
+        }
+
+        .deck {
+          width: 100%;
+          margin: 0;
+          border: 0;
+          box-shadow: none;
+          background: #ffffff;
+        }
+
+        .slides {
+          height: auto;
+        }
+
+        .slide {
+          display: block !important;
+          height: auto;
+          overflow: visible;
+          padding: 20px 0;
+          page-break-after: always;
+          color: #111111;
+        }
+
+        .slide:last-child {
+          page-break-after: auto;
+        }
+
+        .card,
+        .mono,
+        .visual,
+        .kpi,
+        .step,
+        .tag,
+        .progress-wrap {
+          border-color: #d8d8d8;
+          color: #111111;
+          background: #ffffff;
+        }
+
+        .visual text,
+        .visual-caption,
+        .progress,
+        p,
+        li {
+          color: #222222 !important;
+        }
+
+        .click-zone,
+        .footer {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck" aria-label="CSS Overrides proposal deck">
+      <button class="click-zone left" type="button" id="prevZone" aria-label="Previous slide"></button>
+      <button class="click-zone right" type="button" id="nextZone" aria-label="Next slide"></button>
+      <section class="slides">
+        <article class="slide active">
+          <div>
+            <h1>CSS Overrides System for AI Projects</h1>
+            <div class="stack" style="margin-top: 18px">
+              <div class="card">
+                <h3>Presenter Goal</h3>
+                <p>Show why <code>data-ai-*</code> is the right styling contract for clients.</p>
+              </div>
+              <div class="card">
+                <h3>Audience Goal</h3>
+                <p>Understand effort, automation level, and what clients need to do post-launch.</p>
+              </div>
+            </div>
+          </div>
+          <div class="visual">
+            <svg viewBox="0 0 900 140" role="img" aria-label="Proposal flow overview">
+              <rect x="10" y="20" width="130" height="42" rx="8" fill="#1f3266" stroke="#2b3a6a"></rect>
+              <text x="75" y="46" text-anchor="middle" fill="#eef2ff" font-size="14">Problem</text>
+              <rect x="170" y="20" width="130" height="42" rx="8" fill="#1f3266" stroke="#2b3a6a"></rect>
+              <text x="235" y="46" text-anchor="middle" fill="#eef2ff" font-size="14">Solution</text>
+              <rect x="330" y="20" width="150" height="42" rx="8" fill="#1f3266" stroke="#2b3a6a"></rect>
+              <text x="405" y="46" text-anchor="middle" fill="#eef2ff" font-size="14">Automation</text>
+              <rect x="510" y="20" width="170" height="42" rx="8" fill="#1f3266" stroke="#2b3a6a"></rect>
+              <text x="595" y="46" text-anchor="middle" fill="#eef2ff" font-size="14">Client Workflow</text>
+              <rect x="710" y="20" width="170" height="42" rx="8" fill="#1f3266" stroke="#2b3a6a"></rect>
+              <text x="795" y="46" text-anchor="middle" fill="#eef2ff" font-size="14">Rollout</text>
+              <line x1="142" y1="41" x2="168" y2="41" stroke="#8fd3ff"></line>
+              <line x1="302" y1="41" x2="328" y2="41" stroke="#8fd3ff"></line>
+              <line x1="482" y1="41" x2="508" y2="41" stroke="#8fd3ff"></line>
+              <line x1="682" y1="41" x2="708" y2="41" stroke="#8fd3ff"></line>
+              <rect x="10" y="82" width="870" height="46" rx="8" fill="rgba(67,209,158,0.12)" stroke="#2b3a6a"></rect>
+              <text x="445" y="110" text-anchor="middle" fill="#b8c1e1" font-size="14">Objective: stable target selectors + low-effort client customization</text>
+            </svg>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <h2>Problem</h2>
+            <ul>
+              <li>Client needs pixel-perfect restyling power from one override surface.</li>
+              <li>Current class-driven styling can collide with Tailwind utility composition.</li>
+              <li>Selectors can bleed across components and become brittle during refactors.</li>
+              <li>Need a stable, discoverable selector contract visible in DevTools.</li>
+            </ul>
+            <div class="card" style="margin-top: 16px">
+              <h3>Core Requirement</h3>
+              <p>Every meaningful DOM element should be uniquely and stably targetable.</p>
+            </div>
+          </div>
+          <div class="visual">
+            <svg viewBox="0 0 900 140" role="img" aria-label="Problem visualization">
+              <rect x="15" y="16" width="270" height="108" rx="10" fill="rgba(255,143,143,0.12)" stroke="#2b3a6a"></rect>
+              <text x="150" y="42" text-anchor="middle" fill="#ffb7b7" font-size="14">Class collisions</text>
+              <text x="150" y="70" text-anchor="middle" fill="#b8c1e1" font-size="13">Tailwind utility overlaps</text>
+              <rect x="315" y="16" width="270" height="108" rx="10" fill="rgba(255,204,102,0.12)" stroke="#2b3a6a"></rect>
+              <text x="450" y="42" text-anchor="middle" fill="#ffdd90" font-size="14">Selector bleed</text>
+              <text x="450" y="70" text-anchor="middle" fill="#b8c1e1" font-size="13">Nested selectors break scope</text>
+              <rect x="615" y="16" width="270" height="108" rx="10" fill="rgba(110,168,254,0.12)" stroke="#2b3a6a"></rect>
+              <text x="750" y="42" text-anchor="middle" fill="#8fd3ff" font-size="14">Client friction</text>
+              <text x="750" y="70" text-anchor="middle" fill="#b8c1e1" font-size="13">Hard to find stable targets</text>
+            </svg>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <h2>Solution</h2>
+            <p><strong>Contract:</strong> <code>data-ai-{layer}-{component}[-{element}]</code></p>
+            <div class="grid-2" style="margin-top: 14px">
+              <div class="card">
+                <h3>Why attributes</h3>
+                <ul>
+                  <li>No Tailwind class collision.</li>
+                  <li>Scoped selectors, less style bleed.</li>
+                  <li>Consistent specificity <code>(0,1,0)</code>.</li>
+                  <li>Can complement E2E target strategy.</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Naming layers</h3>
+                <div class="tag">page</div>
+                <div class="tag">layout</div>
+                <div class="tag">domain</div>
+                <div class="tag">ui</div>
+                <p>Static string literals only in <code>aiAttr("...")</code>.</p>
+              </div>
+            </div>
+            <pre class="mono">/* Example selectors */
+[data-ai-layout-sidebar] {}
+[data-ai-contacts-table-row]:nth-child(3) {}
+[data-ai-ui-dialog-content][data-state="open"] {}</pre>
+          </div>
+          <div class="visual">
+            <svg viewBox="0 0 900 140" role="img" aria-label="Selector model visualization">
+              <rect x="18" y="24" width="260" height="40" rx="8" fill="#1f3266" stroke="#2b3a6a"></rect>
+              <text x="148" y="49" text-anchor="middle" fill="#eef2ff" font-size="14">[data-ai-ui-button]</text>
+              <rect x="320" y="24" width="260" height="40" rx="8" fill="#1f3266" stroke="#2b3a6a"></rect>
+              <text x="450" y="49" text-anchor="middle" fill="#eef2ff" font-size="14">[data-state="open"]</text>
+              <rect x="622" y="24" width="260" height="40" rx="8" fill="rgba(67,209,158,0.2)" stroke="#2b3a6a"></rect>
+              <text x="752" y="49" text-anchor="middle" fill="#d9ffee" font-size="14">Composed selector</text>
+              <line x1="280" y1="44" x2="318" y2="44" stroke="#8fd3ff"></line>
+              <line x1="582" y1="44" x2="620" y2="44" stroke="#8fd3ff"></line>
+              <text x="450" y="106" text-anchor="middle" fill="#b8c1e1" font-size="14">Predictable specificity and clean composition with library state attributes</text>
+            </svg>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <h2>Automation (Developer Experience)</h2>
+            <div class="flow">
+              <div class="step">Codemod injects aiAttr</div>
+              <div class="arrow">-></div>
+              <div class="step">Generator builds targets CSS</div>
+              <div class="arrow">-></div>
+              <div class="step">Validation tests enforce quality</div>
+            </div>
+            <div class="grid-2" style="margin-top: 16px">
+              <div class="card">
+                <h3>Injection</h3>
+                <p><code>scripts/ai-inject.ts</code> computes names from file path + export and injects idempotently.</p>
+              </div>
+              <div class="card">
+                <h3>Generation</h3>
+                <p><code>scripts/generate-overrides-css.ts</code> writes read-only <code>ai-targets.css</code>.</p>
+              </div>
+              <div class="card">
+                <h3>Static checks</h3>
+                <p>Uniqueness, regex format, literal-only args, and coverage constraints.</p>
+              </div>
+              <div class="card">
+                <h3>Runtime checks</h3>
+                <p>Playwright verifies targetability and no orphan selectors.</p>
+              </div>
+            </div>
+          </div>
+          <div class="kv">
+            <div class="kpi">
+              <div class="n">0</div>
+              <div class="l">Manual tagging expected</div>
+            </div>
+            <div class="kpi">
+              <div class="n">2</div>
+              <div class="l">Generated files model</div>
+            </div>
+            <div class="kpi">
+              <div class="n">4</div>
+              <div class="l">Primary validation gates</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <h2>What Clients Need To Do</h2>
+            <div class="grid-2">
+              <div class="card">
+                <h3>1) Read selector catalog</h3>
+                <p>Use <code>styles/ai-targets.css</code> as the available selector reference.</p>
+              </div>
+              <div class="card">
+                <h3>2) Add custom styles</h3>
+                <p>Write all custom rules in <code>styles/ai-overrides.css</code> only.</p>
+              </div>
+              <div class="card">
+                <h3>3) Use documented patterns</h3>
+                <p>Repeated elements with pseudo-selectors; state composition via Radix <code>data-*</code>.</p>
+              </div>
+              <div class="card">
+                <h3>4) Portal-aware targeting</h3>
+                <p>Target portal content directly; do not rely on nested page ancestry selectors.</p>
+              </div>
+            </div>
+            <p class="ok">Outcome: clear separation between generated targets and client-authored overrides.</p>
+          </div>
+          <div class="visual">
+            <svg viewBox="0 0 900 140" role="img" aria-label="Client workflow visualization">
+              <rect x="24" y="22" width="180" height="90" rx="8" fill="#1f3266" stroke="#2b3a6a"></rect>
+              <text x="114" y="56" text-anchor="middle" fill="#eef2ff" font-size="13">ai-targets.css</text>
+              <text x="114" y="78" text-anchor="middle" fill="#b8c1e1" font-size="12">read-only catalog</text>
+              <line x1="206" y1="67" x2="312" y2="67" stroke="#8fd3ff"></line>
+              <rect x="314" y="22" width="180" height="90" rx="8" fill="#1f3266" stroke="#2b3a6a"></rect>
+              <text x="404" y="56" text-anchor="middle" fill="#eef2ff" font-size="13">ai-overrides.css</text>
+              <text x="404" y="78" text-anchor="middle" fill="#b8c1e1" font-size="12">client custom rules</text>
+              <line x1="496" y1="67" x2="602" y2="67" stroke="#8fd3ff"></line>
+              <rect x="604" y="22" width="272" height="90" rx="8" fill="rgba(67,209,158,0.16)" stroke="#2b3a6a"></rect>
+              <text x="740" y="56" text-anchor="middle" fill="#d9ffee" font-size="13">Predictable, maintainable UI customization</text>
+            </svg>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <h2>Supporting Existing Client Overrides</h2>
+            <div class="grid-2">
+              <div class="card">
+                <h3>Versioning strategy</h3>
+                <ul>
+                  <li>V1 establishes the selector contract clients style against.</li>
+                  <li>Incremental releases should keep existing <code>data-ai-*</code> selectors working.</li>
+                  <li>Prefer additive selector growth over renames/removals.</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Compatibility policy</h3>
+                <ul>
+                  <li>If a selector must change, keep a compatibility alias for a deprecation window.</li>
+                  <li>Validate release-to-release selector diffs before shipping.</li>
+                  <li>Publish upgrade notes when any selector behavior changes.</li>
+                </ul>
+              </div>
+            </div>
+            <pre class="mono">/* Client wrote this on v1 and it should keep working in v1.x */
+[data-ai-layout-sidebar-nav-item] { color: #ddd; }
+
+/* If selector naming changes internally, keep a compatibility alias */
+[data-ai-layout-sidebar-nav-item],
+[data-ai-layout-sidebar-item] { color: #ddd; }</pre>
+            <p class="warn">Recommendation: treat client-authored <code>ai-overrides.css</code> as a compatibility surface across incremental versions.</p>
+          </div>
+          <div class="visual">
+            <svg viewBox="0 0 900 140" role="img" aria-label="Compatibility timeline">
+              <line x1="40" y1="74" x2="860" y2="74" stroke="#2b3a6a" stroke-width="2"></line>
+              <circle cx="120" cy="74" r="10" fill="#43d19e"></circle>
+              <text x="120" y="104" text-anchor="middle" fill="#b8c1e1" font-size="12">v1.0 contract</text>
+              <circle cx="330" cy="74" r="10" fill="#43d19e"></circle>
+              <text x="330" y="104" text-anchor="middle" fill="#b8c1e1" font-size="12">v1.1 additive</text>
+              <circle cx="560" cy="74" r="10" fill="#ffcc66"></circle>
+              <text x="560" y="104" text-anchor="middle" fill="#b8c1e1" font-size="12">v1.2 alias window</text>
+              <circle cx="780" cy="74" r="10" fill="#43d19e"></circle>
+              <text x="780" y="104" text-anchor="middle" fill="#b8c1e1" font-size="12">v1.3 stable</text>
+            </svg>
+          </div>
+        </article>
+
+        <article class="slide">
+          <div>
+            <h2>Rollout</h2>
+            <div class="stack">
+              <div class="card">
+                <h3>Cadence</h3>
+                <ul>
+                  <li><strong>Pre-commit:</strong> inject + validate.</li>
+                  <li><strong>CI:</strong> check mode + full validation.</li>
+                  <li><strong>Pre-release:</strong> regenerate targets.</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Success criteria</h3>
+                <ul>
+                  <li>Clients can style without code changes.</li>
+                  <li>Selector churn is controlled and visible.</li>
+                  <li>No accidental override regressions.</li>
+                </ul>
+              </div>
+            </div>
+            <p class="danger">Open decisions: uniqueness allowlist policy and change-notification model.</p>
+          </div>
+          <div class="kv">
+            <div class="kpi">
+              <div class="n">Pre-commit</div>
+              <div class="l">inject + static checks</div>
+            </div>
+            <div class="kpi">
+              <div class="n">CI</div>
+              <div class="l">check + runtime validation</div>
+            </div>
+            <div class="kpi">
+              <div class="n">Release</div>
+              <div class="l">regenerate selector package</div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="footer">
+        <div class="progress-wrap" aria-label="Slide progress">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress" id="progress" aria-live="polite">1 / 7</div>
+      </footer>
+    </main>
+
+    <script>
+      (function () {
+        const deck = document.querySelector(".deck");
+        const slides = Array.from(document.querySelectorAll(".slide"));
+        const prevZone = document.getElementById("prevZone");
+        const nextZone = document.getElementById("nextZone");
+        const progressFill = document.getElementById("progressFill");
+        const progress = document.getElementById("progress");
+        let index = 0;
+        let touchStartX = 0;
+
+        function update() {
+          slides.forEach((slide, i) => slide.classList.toggle("active", i === index));
+          progress.textContent = (index + 1) + " / " + slides.length;
+          progressFill.style.width = ((index + 1) / slides.length) * 100 + "%";
+        }
+
+        function goTo(i) {
+          index = Math.max(0, Math.min(slides.length - 1, i));
+          update();
+        }
+
+        function next() {
+          goTo(index + 1);
+        }
+
+        function prev() {
+          goTo(index - 1);
+        }
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowRight" || e.key === "PageDown") next();
+          if (e.key === "ArrowLeft" || e.key === "PageUp") prev();
+          if (e.key === "Home") goTo(0);
+          if (e.key === "End") goTo(slides.length - 1);
+          if (e.key === " ") next();
+          if (/^[1-9]$/.test(e.key)) {
+            const target = Number(e.key) - 1;
+            if (target < slides.length) goTo(target);
+          }
+        });
+
+        prevZone.addEventListener("click", prev);
+        nextZone.addEventListener("click", next);
+        deck.addEventListener("touchstart", (e) => {
+          touchStartX = e.changedTouches[0].clientX;
+        });
+        deck.addEventListener("touchend", (e) => {
+          const touchEndX = e.changedTouches[0].clientX;
+          const delta = touchStartX - touchEndX;
+          if (Math.abs(delta) < 40) return;
+          if (delta > 0) next();
+          if (delta < 0) prev();
+        });
+
+        update();
+      })();
+    </script>
+  </body>
+</html>
